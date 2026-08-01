@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="0" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle" xml:space="preserve">
+    <value>MITMPulse</value>
+  </data>
+  <data name="EndpointLabel" xml:space="preserve">
+    <value>Point de terminaison cible (Hôte:Port)</value>
+  </data>
+  <data name="InspectButton" xml:space="preserve">
+    <value>Inspecter le point de terminaison</value>
+  </data>
+  <data name="InspectingStatus" xml:space="preserve">
+    <value>Connexion et inspection SSL/TLS en cours...</value>
+  </data>
+  <data name="StatusDirect" xml:space="preserve">
+    <value>CONNEXION DIRECTE (Aucune inspection SSL détectée)</value>
+  </data>
+  <data name="StatusInspected" xml:space="preserve">
+    <value>INSPECTION SSL DÉTECTÉE (Proxy MITM actif)</value>
+  </data>
+  <data name="StatusError" xml:space="preserve">
+    <value>ERREUR DE CONNEXION / CERTIFICAT</value>
+  </data>
+  <data name="TabOverview" xml:space="preserve">
+    <value>Aperçu de l'inspection</value>
+  </data>
+  <data name="TabCertificateDetails" xml:space="preserve">
+    <value>Détails du certificat &amp; SAN</value>
+  </data>
+  <data name="TabHistory" xml:space="preserve">
+    <value>Historique des analyses</value>
+  </data>
+  <data name="TabSettings" xml:space="preserve">
+    <value>Paramètres de l'application &amp; Proxy</value>
+  </data>
+  <data name="ProxyModeLabel" xml:space="preserve">
+    <value>Mode Proxy</value>
+  </data>
+  <data name="ProxyDirect" xml:space="preserve">
+    <value>Connexion directe (sans proxy)</value>
+  </data>
+  <data name="ProxySystem" xml:space="preserve">
+    <value>Proxy système (Paramètres Windows)</value>
+  </data>
+  <data name="ProxyCustom" xml:space="preserve">
+    <value>Proxy personnalisé</value>
+  </data>
+  <data name="ProxyHost" xml:space="preserve">
+    <value>Hôte proxy personnalisé</value>
+  </data>
+  <data name="ProxyPort" xml:space="preserve">
+    <value>Port proxy personnalisé</value>
+  </data>
+  <data name="ExpectedThumbprint" xml:space="preserve">
+    <value>Empreinte attendue (Certificate Pinning)</value>
+  </data>
+  <data name="ExportJson" xml:space="preserve">
+    <value>Exporter en JSON</value>
+  </data>
+  <data name="ExportCsv" xml:space="preserve">
+    <value>Exporter en CSV</value>
+  </data>
+  <data name="ClearHistory" xml:space="preserve">
+    <value>Effacer l'historique</value>
+  </data>
+  <data name="LanguagePreferenceTitle" xml:space="preserve">
+    <value>Préférence de langue (Remplacement)</value>
+  </data>
+  <data name="LanguagePreferenceDesc" xml:space="preserve">
+    <value>Forcer la langue d'affichage si la langue du système n'est pas détectée comme prévu.</value>
+  </data>
+  <data name="CustomProxyTitle" xml:space="preserve">
+    <value>Configuration proxy personnalisé</value>
+  </data>
+  <data name="CustomProxyNotice" xml:space="preserve">
+    <value>Les paramètres proxy sont appliqués lorsque le mode 'Personnalisé' est sélectionné.</value>
+  </data>
+  <data name="SslAnalysisTitle" xml:space="preserve">
+    <value>Analyse d'inspection SSL / Proxy MITM</value>
+  </data>
+  <data name="NegotiatedTlsTitle" xml:space="preserve">
+    <value>Protocole TLS négocié</value>
+  </data>
+  <data name="NegotiatedCipherTitle" xml:space="preserve">
+    <value>Suite de chiffrement négociée</value>
+  </data>
+  <data name="HstsTitle" xml:space="preserve">
+    <value>Sécurité HTTP Strict Transport (HSTS)</value>
+  </data>
+  <data name="CertSummaryTitle" xml:space="preserve">
+    <value>Résumé du certificat serveur</value>
+  </data>
+  <data name="SubjectLabel" xml:space="preserve">
+    <value>Sujet :</value>
+  </data>
+  <data name="IssuerLabel" xml:space="preserve">
+    <value>Émetteur :</value>
+  </data>
+  <data name="ValidFromLabel" xml:space="preserve">
+    <value>Valide à partir du :</value>
+  </data>
+  <data name="ValidToLabel" xml:space="preserve">
+    <value>Valide jusqu'au :</value>
+  </data>
+  <data name="ThumbprintLabel" xml:space="preserve">
+    <value>Empreinte :</value>
+  </data>
+  <data name="SanLabel" xml:space="preserve">
+    <value>Noms alternatifs (SAN) :</value>
+  </data>
+</root>

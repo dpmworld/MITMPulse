@@ -1,0 +1,282 @@
+<ui:FluentWindow x:Class="MITMPulse.MainWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                  xmlns:models="clr-namespace:MITMPulse.Models"
+                  xmlns:services="clr-namespace:MITMPulse.Services"
+                  Title="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[AppTitle]}"
+                  Height="750" Width="1050"
+                  WindowStartupLocation="CenterScreen"
+                  Icon="pack://application:,,,/Assets/icon.ico">
+
+    <Grid Margin="12,4,12,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TitleBar Fluent with Icon and Dynamic Title + Version -->
+        <ui:TitleBar Grid.Row="0"
+                     Title="{Binding AppTitleWithVersion}"
+                     Margin="-12,-4,-12,8">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/icon.ico"/>
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <!-- Input Bar Card -->
+        <ui:Card Grid.Row="1" Margin="0,0,0,16" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Endpoint Selection Dropdown -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,8">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[EndpointLabel]}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <ComboBox IsEditable="True"
+                              ItemsSource="{Binding Presets}"
+                              SelectedItem="{Binding SelectedPreset}"
+                              Text="{Binding TargetInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              DisplayMemberPath="FullAddress">
+                        <ComboBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding InspectEndpointCommand}"/>
+                            <KeyBinding Key="Enter" Command="{Binding InspectEndpointCommand}"/>
+                        </ComboBox.InputBindings>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Expected Thumbprint -->
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,8">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ExpectedThumbprint]}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <ui:TextBox Text="{Binding ExpectedThumbprint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Optional SHA-1 Thumbprint">
+                        <ui:TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding InspectEndpointCommand}"/>
+                            <KeyBinding Key="Enter" Command="{Binding InspectEndpointCommand}"/>
+                        </ui:TextBox.InputBindings>
+                    </ui:TextBox>
+                </StackPanel>
+
+                <!-- Proxy Selection -->
+                <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,8">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ProxyModeLabel]}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <ComboBox SelectedItem="{Binding SelectedProxyMode}">
+                        <models:ProxyMode>Direct</models:ProxyMode>
+                        <models:ProxyMode>System</models:ProxyMode>
+                        <models:ProxyMode>Custom</models:ProxyMode>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Action Button -->
+                <ui:Button Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom" Margin="0,0,0,8"
+                        Content="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[InspectButton]}"
+                        Command="{Binding InspectEndpointCommand}"
+                        IsDefault="True"
+                        Appearance="Primary"
+                        Padding="24,8"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- Status Banner -->
+        <ui:Card Grid.Row="2" Margin="0,0,0,16" Padding="12,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20" Margin="0,0,12,0"
+                                 Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Text="{Binding StatusMessage}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+        </ui:Card>
+
+        <!-- Main Content Tabs -->
+        <TabControl Grid.Row="3">
+            <!-- Tab 1: Inspection Overview -->
+            <TabItem Header="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[TabOverview]}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                    <StackPanel>
+                        <!-- SSL Inspection Status Banner -->
+                        <ui:Card Margin="0,0,0,12" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SslAnalysisTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding InspectionResult.InspectionReason}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Pinning Status: " FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding InspectionResult.PinningStatus}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:Card>
+
+                        <!-- Protocol Metrics Grid -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[NegotiatedTlsTitle]}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding InspectionResult.TlsVersion, FallbackValue='N/A'}" FontSize="22" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <ui:Card Grid.Column="1" Margin="6,0,0,0" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[NegotiatedCipherTitle]}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding InspectionResult.CipherSuite, FallbackValue='N/A'}" FontSize="15" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </ui:Card>
+                        </Grid>
+
+                        <!-- HSTS Security Card -->
+                        <ui:Card Margin="0,0,0,12" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[HstsTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="HSTS Header: " FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding InspectionResult.HstsHeaderValue, FallbackValue='Not Checked'}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:Card>
+
+                        <!-- Server Certificate Summary -->
+                        <ui:Card Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[CertSummaryTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SubjectLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Subject}" TextWrapping="Wrap" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[IssuerLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Issuer}" TextWrapping="Wrap" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidFromLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.ValidFrom, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss UTC}'}" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidToLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.ValidTo, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss UTC}'}" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ThumbprintLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Thumbprint}" FontFamily="Consolas" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SanLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.FormattedSan}" TextWrapping="Wrap" Margin="0,2"/>
+                                </Grid>
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: Certificate Chain & SANs -->
+            <TabItem Header="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[TabCertificateDetails]}">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ui:ListView Grid.Row="0" ItemsSource="{Binding InspectionResult.CertificateChain}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Subject" DisplayMemberBinding="{Binding Subject}" Width="260"/>
+                                <GridViewColumn Header="Issuer" DisplayMemberBinding="{Binding Issuer}" Width="260"/>
+                                <GridViewColumn Header="Alt Names (SAN)" DisplayMemberBinding="{Binding FormattedSan}" Width="220"/>
+                                <GridViewColumn Header="Valid To" DisplayMemberBinding="{Binding ValidTo, StringFormat='{}{0:yyyy-MM-dd}'}" Width="100"/>
+                                <GridViewColumn Header="Thumbprint" DisplayMemberBinding="{Binding Thumbprint}" Width="220"/>
+                            </GridView>
+                        </ListView.View>
+                    </ui:ListView>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 3: History -->
+            <TabItem Header="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[TabHistory]}">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:Button Content="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ExportJson]}" Command="{Binding ExportJsonCommand}" CommandParameter="history_export.json" Margin="0,0,8,0"/>
+                        <ui:Button Content="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ExportCsv]}" Command="{Binding ExportCsvCommand}" CommandParameter="history_export.csv" Margin="0,0,8,0"/>
+                        <ui:Button Content="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ClearHistory]}" Command="{Binding ClearHistoryCommand}" Appearance="Secondary"/>
+                    </StackPanel>
+
+                    <ui:ListView Grid.Row="1" ItemsSource="{Binding History}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Timestamp" DisplayMemberBinding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="130"/>
+                                <GridViewColumn Header="Target Host" DisplayMemberBinding="{Binding TargetHost}" Width="200"/>
+                                <GridViewColumn Header="Port" DisplayMemberBinding="{Binding TargetPort}" Width="60"/>
+                                <GridViewColumn Header="TLS Version" DisplayMemberBinding="{Binding TlsVersion}" Width="100"/>
+                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding StatusSummary}" Width="260"/>
+                                <GridViewColumn Header="Server Issuer" DisplayMemberBinding="{Binding ServerIssuer}" Width="220"/>
+                            </GridView>
+                        </ListView.View>
+                    </ui:ListView>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 4: Application & Proxy Settings -->
+            <TabItem Header="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[TabSettings]}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16" Width="520" HorizontalAlignment="Left">
+                        <!-- Section 1: Language Preference -->
+                        <ui:Card Margin="0,0,0,16" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[LanguagePreferenceTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[LanguagePreferenceDesc]}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                                          SelectedItem="{Binding SelectedLanguage}"
+                                          DisplayMemberPath="DisplayName"
+                                          Padding="8,6"/>
+                            </StackPanel>
+                        </ui:Card>
+
+                        <!-- Section 2: Custom Proxy Settings -->
+                        <ui:Card Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[CustomProxyTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ProxyHost]}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                <ui:TextBox Text="{Binding CustomProxyHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. proxy.company.com" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ProxyPort]}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                <ui:TextBox Text="{Binding CustomProxyPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="8080" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[CustomProxyNotice]}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Footer -->
+        <TextBlock Grid.Row="4" Text="Copyright © 2026 Francesco Dipietromaria (www.dpmworld.net)" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+    </Grid>
+</ui:FluentWindow>
