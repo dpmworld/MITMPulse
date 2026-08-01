@@ -271,6 +271,14 @@
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[CustomProxyNotice]}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </ui:Card>
+
+                        <!-- Section 3: Legal Disclaimer -->
+                        <ui:Card Margin="0,16,0,0" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[DisclaimerTitle]}" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[DisclaimerText]}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" FontSize="12"/>
+                            </StackPanel>
+                        </ui:Card>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

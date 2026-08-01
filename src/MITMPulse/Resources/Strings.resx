@@ -156,4 +156,10 @@
   <data name="SanLabel" xml:space="preserve">
     <value>Alt Names (SAN):</value>
   </data>
+  <data name="DisclaimerTitle" xml:space="preserve">
+    <value>Legal Disclaimer &amp; Limitation of Liability</value>
+  </data>
+  <data name="DisclaimerText" xml:space="preserve">
+    <value>MITMPulse is provided 'AS IS' for authorized network diagnostics. The author (Francesco Dipietromaria) assumes no liability for any claims, data loss, disruptions, or misuse.</value>
+  </data>
 </root>

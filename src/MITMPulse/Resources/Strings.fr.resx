@@ -156,4 +156,10 @@
   <data name="SanLabel" xml:space="preserve">
     <value>Noms alternatifs (SAN) :</value>
   </data>
+  <data name="DisclaimerTitle" xml:space="preserve">
+    <value>Avis juridique &amp; Limitation de responsabilité</value>
+  </data>
+  <data name="DisclaimerText" xml:space="preserve">
+    <value>MITMPulse est fourni 'TEL QUEL' à des fins de diagnostic par un personnel autorisé. L'auteur (Francesco Dipietromaria) décline toute responsabilité en cas de dommage ou d'utilisation abusive.</value>
+  </data>
 </root>

@@ -156,4 +156,10 @@
   <data name="SanLabel" xml:space="preserve">
     <value>Nomi Alternativi (SAN):</value>
   </data>
+  <data name="DisclaimerTitle" xml:space="preserve">
+    <value>Disclaimer Legale &amp; Limitazione di Responsabilità</value>
+  </data>
+  <data name="DisclaimerText" xml:space="preserve">
+    <value>MITMPulse è fornito 'COSÌ COM'È' per scopi di diagnostica di rete da parte di personale autorizzato. L'autore (Francesco Dipietromaria) non si assume alcuna responsabilità per danni, perdite di dati, disservizi o usi impropri.</value>
+  </data>
 </root>

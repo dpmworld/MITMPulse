@@ -86,4 +86,14 @@ Output executable path:
 `C:\Sviluppo\MITMPulse\src\MITMPulse\bin\Release\net8.0-windows10.0.18362.0\win-x64\publish\MITMPulse.exe`
 
 ---
+
+## ⚠️ Disclaimer & Limitation of Liability
+
+**MITMPulse** is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHOR (**Francesco Dipietromaria** / [www.dpmworld.net](https://www.dpmworld.net)) BE LIABLE FOR ANY CLAIM, DAMAGES, DATA LOSS, NETWORK DISRUPTIONS, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+This software is designed solely for legitimate network administration, SSL inspection diagnostics, and security verification by authorized personnel. Users are solely responsible for ensuring that their use of this software complies with all applicable local, national, and international laws and organizational policies.
+
+---
 Copyright © 2026 **Francesco Dipietromaria** ([www.dpmworld.net](https://www.dpmworld.net))
