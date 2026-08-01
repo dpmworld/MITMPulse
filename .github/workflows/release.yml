@@ -1,0 +1,53 @@
+name: MITMPulse CI/CD Release
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore MITMPulse.sln
+
+      - name: Build solution
+        run: dotnet build MITMPulse.sln --configuration Release --no-restore
+
+      - name: Run xUnit Unit Tests
+        run: dotnet test MITMPulse.sln --configuration Release --no-build --verbosity normal
+
+      - name: Publish Stand-Alone Executable
+        run: dotnet publish src/MITMPulse/MITMPulse.csproj --configuration Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o ./publish
+
+      - name: Create GitHub Release & Upload Executable
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./publish/MITMPulse.exe
+          title: "MITMPulse ${{ github.ref_name }}"
+          body: |
+            ## 🚀 MITMPulse Release ${{ github.ref_name }}
+
+            Stand-alone Windows x64 executable (.exe) for SSL/TLS inspection, MITM proxy detection, and network security diagnostics.
+
+            ### 📦 Download Instructions:
+            Download `MITMPulse.exe` directly from the assets below. No installation or administrator rights required.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
