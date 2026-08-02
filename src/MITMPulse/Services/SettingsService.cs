@@ -9,6 +9,7 @@ namespace MITMPulse.Services;
 
 public class SettingsService : ISettingsService
 {
+    private static readonly CultureInfo InitialSystemUiCulture = CultureInfo.InstalledUICulture;
     private readonly string _settingsFilePath;
 
     public SettingsService()
@@ -47,7 +48,6 @@ public class SettingsService : ISettingsService
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string json = JsonSerializer.Serialize(settings, options);
-            await File.ReadAllTextAsync(_settingsFilePath);
             await File.WriteAllTextAsync(_settingsFilePath, json);
         }
         catch
@@ -63,7 +63,7 @@ public class SettingsService : ISettingsService
             "it" => new CultureInfo("it-IT"),
             "fr" => new CultureInfo("fr-FR"),
             "en" => new CultureInfo("en-US"),
-            _ => CultureInfo.CurrentCulture // Auto / System language
+            _ => InitialSystemUiCulture // Auto / System language
         };
 
         CultureInfo.DefaultThreadCurrentCulture = culture;
