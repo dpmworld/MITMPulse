@@ -154,7 +154,7 @@
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[CertSummaryTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                      <Grid.RowDefinitions>
@@ -166,22 +166,22 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SubjectLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SubjectLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Subject}" TextWrapping="Wrap" Margin="0,2"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[IssuerLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[IssuerLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Issuer}" TextWrapping="Wrap" Margin="0,2"/>
 
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidFromLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidFromLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.ValidFrom, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss UTC}'}" Margin="0,2"/>
 
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidToLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ValidToLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.ValidTo, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss UTC}'}" Margin="0,2"/>
 
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ThumbprintLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ThumbprintLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.Thumbprint}" FontFamily="Consolas" Margin="0,2"/>
 
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SanLabel]}" FontWeight="SemiBold" Margin="0,2"/>
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SanLabel]}" FontWeight="SemiBold" Margin="0,2,16,2"/>
                                     <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding InspectionResult.ServerCertificate.FormattedSan}" TextWrapping="Wrap" Margin="0,2"/>
                                 </Grid>
                             </StackPanel>
