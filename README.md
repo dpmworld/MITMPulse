@@ -2,6 +2,8 @@
 
 **MITMPulse** is a portable, stand-alone Windows desktop application built with C# and .NET 8 WPF, featuring a modern Windows 11 Fluent UI (powered by [WPF-UI](https://github.com/lepoco/wpfui)).
 
+*Application developed with the help of AI (Agentic Coding)*
+
 Author: **Francesco Dipietromaria**  
 Website: [www.dpmworld.net](https://www.dpmworld.net)  
 
