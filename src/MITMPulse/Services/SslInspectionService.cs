@@ -113,14 +113,26 @@ public class SslInspectionService : ISslInspectionService
                 }
 
                 // Certificate Pinning Validation
-                if (!string.IsNullOrWhiteSpace(expectedThumbprint))
+                string? pinExpected = expectedThumbprint;
+                bool isUserSuppliedPin = !string.IsNullOrWhiteSpace(expectedThumbprint);
+
+                if (!isUserSuppliedPin && preset?.KnownThumbprint != null)
                 {
-                    string cleanExpected = expectedThumbprint.Replace(" ", "").Replace(":", "").ToUpperInvariant();
+                    pinExpected = preset.KnownThumbprint;
+                }
+
+                if (!string.IsNullOrWhiteSpace(pinExpected))
+                {
+                    string cleanExpected = pinExpected.Replace(" ", "").Replace(":", "").ToUpperInvariant();
                     string cleanActual = capturedCert.Thumbprint.Replace(" ", "").Replace(":", "").ToUpperInvariant();
 
                     if (cleanExpected == cleanActual)
                     {
                         result.PinningStatus = "Pinning Matched";
+                    }
+                    else if (!isUserSuppliedPin && preset?.KnownCertExpirationDate.HasValue == true && DateTime.UtcNow > preset.KnownCertExpirationDate.Value)
+                    {
+                        result.PinningStatus = $"Baseline Expiration Fallback (Server Cert Renewed on {capturedCert.NotBefore:yyyy-MM-dd})";
                     }
                     else
                     {
@@ -210,27 +222,7 @@ public class SslInspectionService : ISslInspectionService
         string rootIssuer = rootCert?.Issuer ?? string.Empty;
         string rootSubject = rootCert?.Subject ?? string.Empty;
 
-        // 1. Preset Baseline Expectation Check (100% Certainty for Predefined Presets)
-        if (preset != null && preset.ExpectedPublicIssuers.Length > 0)
-        {
-            bool matchesExpectedIssuer = preset.ExpectedPublicIssuers.Any(expected =>
-                cert.Issuer.Contains(expected, StringComparison.OrdinalIgnoreCase) ||
-                rootSubject.Contains(expected, StringComparison.OrdinalIgnoreCase));
-
-            if (!matchesExpectedIssuer)
-            {
-                result.IsSslInspectionDetected = true;
-                result.InspectionReason = $"CONFIRMED SSL INSPECTION (100% Certainty)! Expected public issuer for '{preset.DisplayName}' is '{string.Join("/", preset.ExpectedPublicIssuers)}', but received '{cert.Issuer}' from proxy.";
-
-                if (preset.KnownCertExpirationDate.HasValue)
-                {
-                    result.InspectionReason += $" (Baseline expiration: {preset.KnownCertExpirationDate.Value:yyyy-MM-dd}).";
-                }
-                return;
-            }
-        }
-
-        // 2. Known enterprise proxy / middlebox CA keywords
+        // 1. Known enterprise proxy / middlebox CA keywords (Absolute priority for proxy detection)
         string[] proxyKeywords = new[]
         {
             "zscaler", "fortinet", "fortigate", "palo alto", "bluecoat", "cisco umbrella",
@@ -251,23 +243,54 @@ public class SslInspectionService : ISslInspectionService
             }
         }
 
-        bool isKnownPublicRoot = rootCert != null && IsKnownPublicRootCa(rootCert.Subject);
+        bool isKnownPublicRoot = IsKnownPublicRootCa(cert.Issuer) || (rootCert != null && IsKnownPublicRootCa(rootSubject));
+        bool isExpired = DateTime.UtcNow > cert.NotAfter || DateTime.UtcNow < cert.NotBefore;
 
-        // SSL Inspection Decision Matrix
         if (hasProxyKeyword)
         {
             result.IsSslInspectionDetected = true;
             result.InspectionReason = string.Join(" ", reasons);
+            return;
         }
-        else if (!isKnownPublicRoot && !isInternalTarget)
+
+        // 2. Check for Expired Certificates issued by known Public CAs (Exclude False Positive MITM)
+        if (isExpired && isKnownPublicRoot)
+        {
+            result.IsSslInspectionDetected = false;
+            result.InspectionReason = $"CERTIFICATE EXPIRED: The server certificate expired on {cert.NotAfter:yyyy-MM-dd HH:mm:ss UTC}. No SSL Inspection proxy detected (Original public issuer: {cert.Issuer}).";
+            return;
+        }
+
+        // 3. Preset Baseline Expectation Check (Validation against pre-configured public CA list)
+        if (preset != null && preset.ExpectedPublicIssuers.Length > 0)
+        {
+            bool matchesExpectedIssuer = preset.ExpectedPublicIssuers.Any(expected =>
+                cert.Issuer.Contains(expected, StringComparison.OrdinalIgnoreCase) ||
+                rootSubject.Contains(expected, StringComparison.OrdinalIgnoreCase));
+
+            if (!matchesExpectedIssuer && !isKnownPublicRoot)
+            {
+                result.IsSslInspectionDetected = true;
+                result.InspectionReason = $"CONFIRMED SSL INSPECTION (100% Certainty)! Expected public issuer for '{preset.DisplayName}' is '{string.Join("/", preset.ExpectedPublicIssuers)}', but received '{cert.Issuer}' from proxy.";
+
+                if (preset.KnownCertExpirationDate.HasValue)
+                {
+                    result.InspectionReason += $" (Baseline expiration: {preset.KnownCertExpirationDate.Value:yyyy-MM-dd}).";
+                }
+                return;
+            }
+        }
+
+        // 4. SSL Inspection Decision Matrix for general targets
+        if (!isKnownPublicRoot && !isInternalTarget)
         {
             result.IsSslInspectionDetected = true;
-            result.InspectionReason = $"Target '{result.TargetHost}' is a public endpoint, but its certificate chain is signed by a private/internal CA ({rootSubject}). SSL Inspection proxy active.";
+            result.InspectionReason = $"Target '{result.TargetHost}' is a public endpoint, but its certificate chain is signed by a private/internal CA ({cert.Issuer}). SSL Inspection proxy active.";
         }
         else if (isInternalTarget && !isKnownPublicRoot)
         {
             result.IsSslInspectionDetected = false;
-            result.InspectionReason = $"Internal target '{result.TargetHost}' is using a valid internal Enterprise CA ({rootSubject}). No SSL inspection detected.";
+            result.InspectionReason = $"Internal target '{result.TargetHost}' is using a valid internal Enterprise CA ({cert.Issuer}). No SSL inspection detected.";
         }
         else
         {

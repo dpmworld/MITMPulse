@@ -93,6 +93,23 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20" Margin="0,0,12,0"
                                  Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <!-- Red Eye Icon when SSL Inspection is Detected -->
+                <ui:SymbolIcon Symbol="Eye24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
+                               Visibility="{Binding IsSslInspectionDetected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <!-- Orange Warning Icon when Certificate Expired -->
+                <ui:SymbolIcon Symbol="Warning24" FontSize="20" Foreground="#D83B01" Margin="0,0,10,0"
+                               Visibility="{Binding IsCertificateExpired, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <!-- Green Checkmark Icon when Direct Connection -->
+                <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="#107C41" Margin="0,0,10,0"
+                               Visibility="{Binding IsDirectConnection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <!-- Red Dismiss Icon when Connection Error -->
+                <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
+                               Visibility="{Binding IsConnectionError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
                 <TextBlock Text="{Binding StatusMessage}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
         </ui:Card>
@@ -105,14 +122,33 @@
                     <StackPanel>
                         <!-- SSL Inspection Status Banner -->
                         <ui:Card Margin="0,0,0,12" Padding="16">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SslAnalysisTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding InspectionResult.InspectionReason}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Pinning Status: " FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding InspectionResult.PinningStatus}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[SslAnalysisTitle]}" FontSize="15" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding InspectionResult.InspectionReason}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Pinning Status: " FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding InspectionResult.PinningStatus}"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
+
+                                <!-- Stylized Red Eye Icon for SSL Inspection -->
+                                <ui:SymbolIcon Grid.Column="1" Symbol="Eye24" FontSize="36" Foreground="#D13438" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Visibility="{Binding IsSslInspectionDetected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                <!-- Stylized Orange Warning Icon for Expired Certificate -->
+                                <ui:SymbolIcon Grid.Column="1" Symbol="Warning24" FontSize="36" Foreground="#D83B01" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Visibility="{Binding IsCertificateExpired, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                <!-- Stylized Green Checkmark Icon for Direct Connection -->
+                                <ui:SymbolIcon Grid.Column="1" Symbol="CheckmarkCircle24" FontSize="36" Foreground="#107C41" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Visibility="{Binding IsDirectConnection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </Grid>
                         </ui:Card>
 
                         <!-- Protocol Metrics Grid -->

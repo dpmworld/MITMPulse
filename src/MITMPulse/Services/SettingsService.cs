@@ -23,7 +23,7 @@ public class SettingsService : ISettingsService
         _settingsFilePath = Path.Combine(appDataDir, "settings.json");
     }
 
-    public async Task<AppSettings> LoadSettingsAsync()
+    public AppSettings LoadSettings()
     {
         if (!File.Exists(_settingsFilePath))
         {
@@ -32,7 +32,7 @@ public class SettingsService : ISettingsService
 
         try
         {
-            string json = await File.ReadAllTextAsync(_settingsFilePath);
+            string json = File.ReadAllText(_settingsFilePath);
             var settings = JsonSerializer.Deserialize<AppSettings>(json);
             return settings ?? new AppSettings();
         }
@@ -42,13 +42,46 @@ public class SettingsService : ISettingsService
         }
     }
 
+    public async Task<AppSettings> LoadSettingsAsync()
+    {
+        if (!File.Exists(_settingsFilePath))
+        {
+            return new AppSettings();
+        }
+
+        try
+        {
+            string json = await File.ReadAllTextAsync(_settingsFilePath).ConfigureAwait(false);
+            var settings = JsonSerializer.Deserialize<AppSettings>(json);
+            return settings ?? new AppSettings();
+        }
+        catch
+        {
+            return new AppSettings();
+        }
+    }
+
+    public void SaveSettings(AppSettings settings)
+    {
+        try
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(settings, options);
+            File.WriteAllText(_settingsFilePath, json);
+        }
+        catch
+        {
+            // Ignore write errors
+        }
+    }
+
     public async Task SaveSettingsAsync(AppSettings settings)
     {
         try
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string json = JsonSerializer.Serialize(settings, options);
-            await File.WriteAllTextAsync(_settingsFilePath, json);
+            await File.WriteAllTextAsync(_settingsFilePath, json).ConfigureAwait(false);
         }
         catch
         {
