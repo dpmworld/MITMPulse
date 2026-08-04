@@ -74,6 +74,7 @@
                     <ComboBox SelectedItem="{Binding SelectedProxyMode}">
                         <models:ProxyMode>Direct</models:ProxyMode>
                         <models:ProxyMode>System</models:ProxyMode>
+                        <models:ProxyMode>WinHttp</models:ProxyMode>
                         <models:ProxyMode>Custom</models:ProxyMode>
                     </ComboBox>
                 </StackPanel>
@@ -149,6 +150,38 @@
                                 <ui:SymbolIcon Grid.Column="1" Symbol="CheckmarkCircle24" FontSize="36" Foreground="#107C41" VerticalAlignment="Center" Margin="16,0,8,0"
                                                Visibility="{Binding IsDirectConnection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
+                        </ui:Card>
+
+                        <!-- System Proxy & PAC Diagnostics Card -->
+                        <ui:Card Margin="0,0,0,12" Padding="16"
+                                 Visibility="{Binding InspectionResult.IsSystemProxyUsed, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="System Proxy &amp; PAC Script Diagnostics" FontSize="15" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Windows Config Type:" FontWeight="SemiBold" Margin="0,2,16,2"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InspectionResult.SystemProxyConfigType}" Margin="0,2,0,2"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="PAC Script URL:" FontWeight="SemiBold" Margin="0,2,16,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InspectionResult.PacScriptUrl, FallbackValue='None / Static'}" Margin="0,2,0,2" TextWrapping="Wrap"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="PAC Target Resolution:" FontWeight="SemiBold" Margin="0,2,16,2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding InspectionResult.PacResolvedProxy}" FontWeight="Bold" Foreground="#0078D4" Margin="0,2,0,2"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="HTTP Tunnel Status:" FontWeight="SemiBold" Margin="0,2,16,2"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding InspectionResult.TunnelStatus}" Margin="0,2,0,2"/>
+                                </Grid>
+                            </StackPanel>
                         </ui:Card>
 
                         <!-- Protocol Metrics Grid -->

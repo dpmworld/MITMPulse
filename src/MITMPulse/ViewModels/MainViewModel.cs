@@ -278,6 +278,12 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        if (SelectedProxyMode == ProxyMode.Custom && string.IsNullOrWhiteSpace(CustomProxyHost))
+        {
+            StatusMessage = "Custom Proxy mode selected: please specify Proxy Host in Settings tab.";
+            return;
+        }
+
         IsLoading = true;
         StatusMessage = "Connecting and inspecting SSL/TLS endpoint...";
         InspectionResult = null;

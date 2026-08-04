@@ -19,4 +19,9 @@ public class SslInspectionResult
     public CertificateDetail? ServerCertificate { get; set; }
     public List<CertificateDetail> CertificateChain { get; set; } = new();
     public string PinningStatus { get; set; } = "Not Configured";
+    public bool IsSystemProxyUsed { get; set; }
+    public string SystemProxyConfigType { get; set; } = string.Empty;
+    public string PacScriptUrl { get; set; } = string.Empty;
+    public string PacResolvedProxy { get; set; } = string.Empty;
+    public string TunnelStatus { get; set; } = string.Empty;
 }

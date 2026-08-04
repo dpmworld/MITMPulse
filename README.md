@@ -29,7 +29,7 @@ Website: [www.dpmworld.net](https://www.dpmworld.net)
 - **HSTS Security Header Check**: Queries HTTP `Strict-Transport-Security` headers to verify HSTS compliance.
 - **TLS Version & Cipher Suite Metrics**: Displays negotiated protocol versions (TLS 1.2, TLS 1.3) and negotiated Cipher Suites.
 - **Certificate Pinning**: Optional validation against expected SHA-1 certificate thumbprints with preset fallback.
-- **Proxy Modes**: Supports **Direct** socket connections, **System Proxy** (WinINet / System), or **Custom** explicit HTTP/SOCKS proxies with authentication.
+- **Proxy Modes & PAC/WinHTTP Tunneling**: Supports **Direct** socket connections, **System Proxy** (WinINet / System with automatic **PAC script** execution & HTTP `CONNECT` tunneling), **WinHTTP Proxy** (`netsh winhttp` P/Invoke native system proxy reader), or **Custom** explicit HTTP/SOCKS proxies with mandatory configuration validation and authentication.
 
 ### 🏢 Predefined Target Presets
 Pre-populated with high-priority enterprise cloud endpoints and live certificate baselines:

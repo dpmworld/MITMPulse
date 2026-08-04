@@ -1,8 +1,11 @@
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using MITMPulse.Models;
 
 namespace MITMPulse.Services;
@@ -46,9 +49,16 @@ public class SslInspectionService : ISslInspectionService
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeoutCts.CancelAfter(TimeSpan.FromSeconds(10));
 
-            await tcpClient.ConnectAsync(targetHost, targetPort, timeoutCts.Token);
+            if (proxySettings.Mode == ProxyMode.System || proxySettings.Mode == ProxyMode.WinHttp)
+            {
+                result.IsSystemProxyUsed = true;
+                var sysInfo = _proxyService.GetSystemProxyInfo();
+                result.SystemProxyConfigType = sysInfo.ConfigType;
+                result.PacScriptUrl = sysInfo.PacUrl;
+            }
 
-            using var networkStream = tcpClient.GetStream();
+            var webProxy = _proxyService.GetWebProxy(proxySettings);
+            var networkStream = await EstablishConnectionAsync(targetHost, targetPort, webProxy, result, tcpClient, timeoutCts.Token).ConfigureAwait(false);
 
             X509Certificate2? capturedCert = null;
             X509Chain? capturedChain = null;
@@ -408,5 +418,79 @@ public class SslInspectionService : ISslInspectionService
             result.IsHstsSupported = false;
             result.HstsHeaderValue = "Not Exposed / Unable to query HTTP headers";
         }
+    }
+
+    private static async Task<NetworkStream> EstablishConnectionAsync(
+        string targetHost,
+        int targetPort,
+        IWebProxy? webProxy,
+        SslInspectionResult result,
+        TcpClient tcpClient,
+        CancellationToken cancellationToken)
+    {
+        var targetUri = new Uri($"https://{targetHost}:{targetPort}");
+
+        if (webProxy != null && !webProxy.IsBypassed(targetUri))
+        {
+            var proxyUri = webProxy.GetProxy(targetUri);
+            if (proxyUri != null && proxyUri != targetUri)
+            {
+                result.PacResolvedProxy = $"PROXY {proxyUri.Host}:{proxyUri.Port}";
+
+                // Connect TCP socket directly to Proxy Server IP/Host & Port
+                await tcpClient.ConnectAsync(proxyUri.Host, proxyUri.Port, cancellationToken).ConfigureAwait(false);
+                var stream = tcpClient.GetStream();
+
+                // Build HTTP CONNECT Tunnel Request
+                var connectBuilder = new StringBuilder();
+                connectBuilder.Append($"CONNECT {targetHost}:{targetPort} HTTP/1.1\r\n");
+                connectBuilder.Append($"Host: {targetHost}:{targetPort}\r\n");
+                connectBuilder.Append("User-Agent: MITMPulse/1.0\r\n");
+
+                if (webProxy.Credentials != null)
+                {
+                    var credential = webProxy.Credentials.GetCredential(proxyUri, "Basic");
+                    if (credential != null && !string.IsNullOrEmpty(credential.UserName))
+                    {
+                        string auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{credential.UserName}:{credential.Password}"));
+                        connectBuilder.Append($"Proxy-Authorization: Basic {auth}\r\n");
+                    }
+                }
+
+                connectBuilder.Append("\r\n");
+
+                byte[] requestBytes = Encoding.ASCII.GetBytes(connectBuilder.ToString());
+                await stream.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken).ConfigureAwait(false);
+                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+                // Read HTTP response status line (e.g., HTTP/1.1 200 Connection Established)
+                using var reader = new StreamReader(stream, Encoding.ASCII, leaveOpen: true);
+                string? responseLine = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(responseLine) || !responseLine.Contains("200"))
+                {
+                    result.TunnelStatus = $"Failed ({responseLine ?? "No response"})";
+                    throw new InvalidOperationException($"Proxy HTTP CONNECT tunnel failed ({proxyUri.Host}:{proxyUri.Port}): {responseLine ?? "No response from proxy"}");
+                }
+
+                result.TunnelStatus = "HTTP CONNECT 200 OK (Tunnel Established)";
+
+                // Consume remaining HTTP headers until blank line (\r\n)
+                string? headerLine;
+                while (!string.IsNullOrEmpty(headerLine = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false)))
+                {
+                    // Consuming header lines
+                }
+
+                return stream;
+            }
+        }
+
+        result.PacResolvedProxy = "DIRECT (Bypassed / Direct Connection)";
+        result.TunnelStatus = "Direct TCP Socket (No Tunnel)";
+
+        // Direct TCP socket connection if no proxy or bypassed
+        await tcpClient.ConnectAsync(targetHost, targetPort, cancellationToken).ConfigureAwait(false);
+        return tcpClient.GetStream();
     }
 }

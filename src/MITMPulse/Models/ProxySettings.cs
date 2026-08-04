@@ -4,6 +4,7 @@ public enum ProxyMode
 {
     Direct,
     System,
+    WinHttp,
     Custom
 }
 
