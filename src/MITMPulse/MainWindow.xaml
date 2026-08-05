@@ -71,11 +71,11 @@
                 <!-- Proxy Selection -->
                 <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,8">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizedStrings.Instance}, Path=[ProxyModeLabel]}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <ComboBox SelectedItem="{Binding SelectedProxyMode}">
-                        <models:ProxyMode>Direct</models:ProxyMode>
-                        <models:ProxyMode>System</models:ProxyMode>
-                        <models:ProxyMode>WinHttp</models:ProxyMode>
-                        <models:ProxyMode>Custom</models:ProxyMode>
+                    <ComboBox SelectedValue="{Binding SelectedProxyMode}" SelectedValuePath="Tag">
+                        <ComboBoxItem Content="Direct" Tag="{x:Static models:ProxyMode.Direct}"/>
+                        <ComboBoxItem Content="System (WinINet)" Tag="{x:Static models:ProxyMode.System}"/>
+                        <ComboBoxItem Content="WinHTTP (netsh)" Tag="{x:Static models:ProxyMode.WinHttp}"/>
+                        <ComboBoxItem Content="Custom" Tag="{x:Static models:ProxyMode.Custom}"/>
                     </ComboBox>
                 </StackPanel>
 

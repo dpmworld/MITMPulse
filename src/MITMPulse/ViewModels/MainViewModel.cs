@@ -163,6 +163,15 @@ public partial class MainViewModel : ObservableObject
                 "EB7711B2EA1A8D920C5060328A08A24A93C288DE"),
 
             new EndpointPreset(
+                "Azure Virtual Desktop Gateway",
+                "rdgateway.wvd.microsoft.com",
+                443,
+                "Microsoft Remote Desktop / AVD Gateway Service",
+                new[] { "Microsoft", "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 19, 17, 31, 41, DateTimeKind.Utc),
+                "2F5DA3E7FA20B155C0B5E234A3152A6E4D99B6B3;B80140DC2DD174B577C81D9E30B718090CD166FC"),
+
+            new EndpointPreset(
                 "Microsoft Teams",
                 "teams.microsoft.com",
                 443,

@@ -52,57 +52,98 @@ public class ProxyService : IProxyService
         };
     }
 
-    public (string ConfigType, string PacUrl, string StaticProxy) GetSystemProxyInfo()
+    public (string ConfigType, string PacUrl, string StaticProxy) GetProxyDetails(ProxyMode mode)
     {
-        try
+        if (mode == ProxyMode.WinHttp)
         {
-            var config = new WINHTTP_CURRENT_USER_IE_PROXY_CONFIG();
-            if (WinHttpGetIEProxyConfigForCurrentUser(ref config))
+            try
             {
-                try
+                if (WinHttpGetDefaultProxyConfiguration(out var proxyInfo))
                 {
-                    string pacUrl = config.lpszAutoConfigUrl != IntPtr.Zero
-                        ? Marshal.PtrToStringUni(config.lpszAutoConfigUrl) ?? string.Empty
-                        : string.Empty;
+                    try
+                    {
+                        string staticProxy = proxyInfo.lpszProxy != IntPtr.Zero
+                            ? Marshal.PtrToStringUni(proxyInfo.lpszProxy) ?? string.Empty
+                            : string.Empty;
 
-                    string staticProxy = config.lpszProxy != IntPtr.Zero
-                        ? Marshal.PtrToStringUni(config.lpszProxy) ?? string.Empty
-                        : string.Empty;
+                        string type;
+                        if (proxyInfo.dwAccessType == WINHTTP_ACCESS_TYPE_NAMED_PROXY)
+                        {
+                            type = "WinHTTP: Static Proxy";
+                        }
+                        else
+                        {
+                            type = "WinHTTP: Direct (No Proxy Configured)";
+                        }
 
-                    string type;
-                    if (!string.IsNullOrWhiteSpace(pacUrl))
-                    {
-                        type = "Script PAC (Auto-Config)";
+                        return (type, string.Empty, staticProxy);
                     }
-                    else if (config.fAutoDetect)
+                    finally
                     {
-                        type = "Auto-Detect WPAD";
+                        if (proxyInfo.lpszProxy != IntPtr.Zero) GlobalFree(proxyInfo.lpszProxy);
+                        if (proxyInfo.lpszProxyBypass != IntPtr.Zero) GlobalFree(proxyInfo.lpszProxyBypass);
                     }
-                    else if (!string.IsNullOrWhiteSpace(staticProxy))
-                    {
-                        type = "Static Proxy";
-                    }
-                    else
-                    {
-                        type = "Direct (No Proxy Configured)";
-                    }
-
-                    return (type, pacUrl, staticProxy);
-                }
-                finally
-                {
-                    if (config.lpszAutoConfigUrl != IntPtr.Zero) GlobalFree(config.lpszAutoConfigUrl);
-                    if (config.lpszProxy != IntPtr.Zero) GlobalFree(config.lpszProxy);
-                    if (config.lpszProxyBypass != IntPtr.Zero) GlobalFree(config.lpszProxyBypass);
                 }
             }
-        }
-        catch
-        {
-            // Fallback
-        }
+            catch
+            {
+                // Fallback
+            }
 
-        return ("Direct / System Default", string.Empty, string.Empty);
+            return ("WinHTTP: Direct / System Default", string.Empty, string.Empty);
+        }
+        else
+        {
+            try
+            {
+                var config = new WINHTTP_CURRENT_USER_IE_PROXY_CONFIG();
+                if (WinHttpGetIEProxyConfigForCurrentUser(ref config))
+                {
+                    try
+                    {
+                        string pacUrl = config.lpszAutoConfigUrl != IntPtr.Zero
+                            ? Marshal.PtrToStringUni(config.lpszAutoConfigUrl) ?? string.Empty
+                            : string.Empty;
+
+                        string staticProxy = config.lpszProxy != IntPtr.Zero
+                            ? Marshal.PtrToStringUni(config.lpszProxy) ?? string.Empty
+                            : string.Empty;
+
+                        string type;
+                        if (!string.IsNullOrWhiteSpace(pacUrl))
+                        {
+                            type = "Script PAC (Auto-Config)";
+                        }
+                        else if (config.fAutoDetect)
+                        {
+                            type = "Auto-Detect WPAD";
+                        }
+                        else if (!string.IsNullOrWhiteSpace(staticProxy))
+                        {
+                            type = "Static Proxy";
+                        }
+                        else
+                        {
+                            type = "Direct (No Proxy Configured)";
+                        }
+
+                        return (type, pacUrl, staticProxy);
+                    }
+                    finally
+                    {
+                        if (config.lpszAutoConfigUrl != IntPtr.Zero) GlobalFree(config.lpszAutoConfigUrl);
+                        if (config.lpszProxy != IntPtr.Zero) GlobalFree(config.lpszProxy);
+                        if (config.lpszProxyBypass != IntPtr.Zero) GlobalFree(config.lpszProxyBypass);
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback
+            }
+
+            return ("Direct / System Default", string.Empty, string.Empty);
+        }
     }
 
     private static IWebProxy? GetWinHttpProxy()

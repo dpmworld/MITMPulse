@@ -36,17 +36,18 @@ Pre-populated with high-priority enterprise cloud endpoints and live certificate
 1. **Citrix NetScaler Gateway Service** (`global-all.g.nssvc.net:443`) — *Citrix DaaS Control Plane*
 2. **Citrix Portal** (`citrix.com:443`) — *Official Citrix Portal*
 3. **Microsoft Entra ID / Azure AD** (`login.microsoftonline.com:443`) — *Cloud Authentication & SSO*
-4. **Microsoft Teams** (`teams.microsoft.com:443`) — *Microsoft Teams Web & Native Client*
-5. **Office 365 Exchange** (`outlook.office365.com:443`) — *Exchange Online Mail Services*
-6. **GitHub Services** (`github.com:443`) — *GitHub & Git over HTTPS (Sectigo/DigiCert/USERTrust)*
-7. **Amazon S3 API** (`s3.amazonaws.com:443`) — *AWS S3 Cloud Storage API*
-8. **Docker Hub Registry** (`registry-1.docker.io:443`) — *Container Image Registry*
-9. **Zoom Cloud Meetings** (`zoom.us:443`) — *Zoom Video Conferencing*
-10. **Google Public Web** (`google.com:443`) — *Google Public Edge (Google Trust Services)*
-11. **Cloudflare Public Edge** (`cloudflare.com:443`) — *Cloudflare CDN Edge*
-12. **BadSSL Expired (Test)** (`expired.badssl.com:443`) — *Diagnostic Expired Cert Test (COMODO/Let's Encrypt)*
-13. **BadSSL Self-Signed (Test)** (`self-signed.badssl.com:443`) — *Diagnostic Self-Signed Test*
-14. **BadSSL Untrusted Root (Test)** (`untrusted-root.badssl.com:443`) — *Diagnostic Untrusted Root Test*
+4. **Azure Virtual Desktop Gateway** (`rdgateway.wvd.microsoft.com:443`) — *Microsoft AVD Gateway Service*
+5. **Microsoft Teams** (`teams.microsoft.com:443`) — *Microsoft Teams Web & Native Client*
+6. **Office 365 Exchange** (`outlook.office365.com:443`) — *Exchange Online Mail Services*
+7. **GitHub Services** (`github.com:443`) — *GitHub & Git over HTTPS (Sectigo/DigiCert/USERTrust)*
+8. **Amazon S3 API** (`s3.amazonaws.com:443`) — *AWS S3 Cloud Storage API*
+9. **Docker Hub Registry** (`registry-1.docker.io:443`) — *Container Image Registry*
+10. **Zoom Cloud Meetings** (`zoom.us:443`) — *Zoom Video Conferencing*
+11. **Google Public Web** (`google.com:443`) — *Google Public Edge (Google Trust Services)*
+12. **Cloudflare Public Edge** (`cloudflare.com:443`) — *Cloudflare CDN Edge*
+13. **BadSSL Expired (Test)** (`expired.badssl.com:443`) — *Diagnostic Expired Cert Test (COMODO/Let's Encrypt)*
+14. **BadSSL Self-Signed (Test)** (`self-signed.badssl.com:443`) — *Diagnostic Self-Signed Test*
+15. **BadSSL Untrusted Root (Test)** (`untrusted-root.badssl.com:443`) — *Diagnostic Untrusted Root Test*
 
 ### 🎨 User Experience, Reliability & Performance
 - **Windows 11 Light Theme & Dynamic Auto-Sizing**: Clean Fluent Design with Windows 11 `ui:TitleBar` controls and dynamic column auto-sizing preventing string truncation in Italian, English, and French.

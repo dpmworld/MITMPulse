@@ -52,7 +52,7 @@ public class SslInspectionService : ISslInspectionService
             if (proxySettings.Mode == ProxyMode.System || proxySettings.Mode == ProxyMode.WinHttp)
             {
                 result.IsSystemProxyUsed = true;
-                var sysInfo = _proxyService.GetSystemProxyInfo();
+                var sysInfo = _proxyService.GetProxyDetails(proxySettings.Mode);
                 result.SystemProxyConfigType = sysInfo.ConfigType;
                 result.PacScriptUrl = sysInfo.PacUrl;
             }
@@ -133,10 +133,12 @@ public class SslInspectionService : ISslInspectionService
 
                 if (!string.IsNullOrWhiteSpace(pinExpected))
                 {
-                    string cleanExpected = pinExpected.Replace(" ", "").Replace(":", "").ToUpperInvariant();
                     string cleanActual = capturedCert.Thumbprint.Replace(" ", "").Replace(":", "").ToUpperInvariant();
+                    string[] expectedList = pinExpected.Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(p => p.Replace(" ", "").Replace(":", "").ToUpperInvariant())
+                        .ToArray();
 
-                    if (cleanExpected == cleanActual)
+                    if (expectedList.Contains(cleanActual))
                     {
                         result.PinningStatus = "Pinning Matched";
                     }
@@ -146,7 +148,7 @@ public class SslInspectionService : ISslInspectionService
                     }
                     else
                     {
-                        result.PinningStatus = $"Pinning MISMATCH! Expected: {cleanExpected}, Actual: {cleanActual}";
+                        result.PinningStatus = $"Pinning MISMATCH! Expected: {pinExpected}, Actual: {capturedCert.Thumbprint}";
                     }
                 }
 
