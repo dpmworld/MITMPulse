@@ -102,7 +102,7 @@ Output executable path:
 
 ## ☕ Support & Buy Me a Coffee
 
-If you like **MITMPulse** or if it saved you time during network troubleshooting, consider buying me a coffee to support its open-source development:
+If you like **MITMPulse** or if it saved you time during network troubleshooting, consider buying me a coffee to support its development:
 
 [![PayPal Donate](https://img.shields.io/badge/Buy_Me_A_Coffee-PayPal.Me-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/dpmworld)
 
@@ -118,3 +118,4 @@ This software is designed solely for legitimate network administration, SSL insp
 
 ---
 Copyright © 2026 **Francesco Dipietromaria** ([www.dpmworld.net](https://www.dpmworld.net))
+

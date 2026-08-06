@@ -11,6 +11,7 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // Application Startup & Global Exception Handler
         // Global Unhandled Exception Handler for WPF UI Thread
         DispatcherUnhandledException += (sender, args) =>
         {
