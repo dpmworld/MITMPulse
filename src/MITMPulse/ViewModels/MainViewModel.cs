@@ -178,7 +178,7 @@ public partial class MainViewModel : ObservableObject
                 "Microsoft Authentication Service (High SSO SSL Inspection Risk)",
                 new[] { "DigiCert", "Microsoft", "Sectigo", "GlobalSign" },
                 new DateTime(2026, 12, 12, 0, 59, 59, DateTimeKind.Utc),
-                "EB7711B2EA1A8D920C5060328A08A24A93C288DE"),
+                "EB7711B2EA1A8D920C5060328A08A24A93C288DE;D36EDAAC39C9581AE2F36F16D9E2C03DB5C7DADB"),
 
             new EndpointPreset(
                 "Azure Virtual Desktop Gateway",
@@ -187,7 +187,7 @@ public partial class MainViewModel : ObservableObject
                 "Microsoft Remote Desktop / AVD Gateway Service",
                 new[] { "Microsoft", "DigiCert", "Sectigo" },
                 new DateTime(2027, 1, 19, 17, 31, 41, DateTimeKind.Utc),
-                "2F5DA3E7FA20B155C0B5E234A3152A6E4D99B6B3;B80140DC2DD174B577C81D9E30B718090CD166FC"),
+                "2F5DA3E7FA20B155C0B5E234A3152A6E4D99B6B3;B80140DC2DD174B577C81D9E30B718090CD166FC;0DDB05F2F8EC6D2B8DB60C6B8A5AE196D1C40B40"),
 
             new EndpointPreset(
                 "Microsoft Teams",
