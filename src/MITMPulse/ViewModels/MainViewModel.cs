@@ -42,7 +42,9 @@ public partial class MainViewModel : ObservableObject
     private string _expectedThumbprint = string.Empty;
 
     [ObservableProperty]
-    private ProxyMode _selectedProxyMode = ProxyMode.Direct;
+    private ProxyMode _selectedProxyMode = ProxyMode.System;
+
+    private DateTime? _disclaimerAckDate;
 
     [ObservableProperty]
     private string _customProxyHost = string.Empty;
@@ -102,10 +104,28 @@ public partial class MainViewModel : ObservableObject
             SelectedProxyMode = initialSettings.SelectedProxyMode;
             CustomProxyHost = initialSettings.CustomProxyHost;
             CustomProxyPort = initialSettings.CustomProxyPort;
+            _disclaimerAckDate = initialSettings.DisclaimerAckDate;
         }
 
         InitializePresets();
         _ = LoadHistoryAsync();
+    }
+
+    public void CheckFirstLaunchDisclaimer()
+    {
+        if (_disclaimerAckDate.HasValue) return;
+
+        string title = LocalizedStrings.Instance["DisclaimerTitle"];
+        string text = LocalizedStrings.Instance["DisclaimerText"];
+
+        System.Windows.MessageBox.Show(
+            text,
+            title,
+            System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
+
+        _disclaimerAckDate = DateTime.UtcNow;
+        _ = SaveSettingsAsync();
     }
 
     private void InitializeLanguages(string initialCode)
@@ -439,7 +459,8 @@ public partial class MainViewModel : ObservableObject
                 LanguageCode = SelectedLanguage?.Code ?? "auto",
                 SelectedProxyMode = SelectedProxyMode,
                 CustomProxyHost = CustomProxyHost,
-                CustomProxyPort = CustomProxyPort
+                CustomProxyPort = CustomProxyPort,
+                DisclaimerAckDate = _disclaimerAckDate
             };
             await _settingsService.SaveSettingsAsync(settings);
         }
