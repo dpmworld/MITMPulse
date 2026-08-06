@@ -82,21 +82,29 @@ Users can explicitly force their preferred language from the **Application & Pro
 
 ### Build Solution
 ```cmd
-dotnet build C:\Sviluppo\MITMPulse\MITMPulse.sln
+dotnet build MITMPulse.sln
 ```
 
 ### Run Unit Tests (xUnit)
 ```cmd
-dotnet test C:\Sviluppo\MITMPulse\MITMPulse.sln
+dotnet test MITMPulse.sln
 ```
 
 ### Publish Stand-Alone Compressed Single-File Executable
 ```cmd
-dotnet publish C:\Sviluppo\MITMPulse\src\MITMPulse\MITMPulse.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet publish src/MITMPulse/MITMPulse.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 ```
 
 Output executable path:
-`C:\Sviluppo\MITMPulse\src\MITMPulse\bin\Release\net8.0-windows10.0.18362.0\win-x64\publish\MITMPulse.exe`
+`./src/MITMPulse/bin/Release/net8.0-windows10.0.18362.0/win-x64/publish/MITMPulse.exe`
+
+---
+
+## ☕ Support & Buy Me a Coffee
+
+If you like **MITMPulse** or if it saved you time during network troubleshooting, consider buying me a coffee to support its open-source development:
+
+[![PayPal Donate](https://img.shields.io/badge/Buy_Me_A_Coffee-PayPal.Me-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/dpmworld)
 
 ---
 
