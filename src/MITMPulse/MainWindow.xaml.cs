@@ -8,5 +8,11 @@ public partial class MainWindow : Elem.FluentWindow
     {
         InitializeComponent();
         DataContext = App.ViewModel;
+        Loaded += MainWindow_Loaded;
+    }
+
+    private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
+    {
+        App.ViewModel?.CheckFirstLaunchDisclaimer();
     }
 }

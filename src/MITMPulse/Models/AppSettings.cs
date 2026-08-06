@@ -6,9 +6,10 @@ namespace MITMPulse.Models;
 public class AppSettings
 {
     public string LanguageCode { get; set; } = "auto";
-    public ProxyMode SelectedProxyMode { get; set; } = ProxyMode.Direct;
+    public ProxyMode SelectedProxyMode { get; set; } = ProxyMode.System;
     public string CustomProxyHost { get; set; } = string.Empty;
     public int CustomProxyPort { get; set; } = 8080;
+    public DateTime? DisclaimerAckDate { get; set; }
 }
 
 public record LanguageOption(string Code, string DisplayName)

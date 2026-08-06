@@ -42,7 +42,9 @@ public partial class MainViewModel : ObservableObject
     private string _expectedThumbprint = string.Empty;
 
     [ObservableProperty]
-    private ProxyMode _selectedProxyMode = ProxyMode.Direct;
+    private ProxyMode _selectedProxyMode = ProxyMode.System;
+
+    private DateTime? _disclaimerAckDate;
 
     [ObservableProperty]
     private string _customProxyHost = string.Empty;
@@ -102,10 +104,28 @@ public partial class MainViewModel : ObservableObject
             SelectedProxyMode = initialSettings.SelectedProxyMode;
             CustomProxyHost = initialSettings.CustomProxyHost;
             CustomProxyPort = initialSettings.CustomProxyPort;
+            _disclaimerAckDate = initialSettings.DisclaimerAckDate;
         }
 
         InitializePresets();
         _ = LoadHistoryAsync();
+    }
+
+    public void CheckFirstLaunchDisclaimer()
+    {
+        if (_disclaimerAckDate.HasValue) return;
+
+        string title = LocalizedStrings.Instance["DisclaimerTitle"];
+        string text = LocalizedStrings.Instance["DisclaimerText"];
+
+        System.Windows.MessageBox.Show(
+            text,
+            title,
+            System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
+
+        _disclaimerAckDate = DateTime.UtcNow;
+        _ = SaveSettingsAsync();
     }
 
     private void InitializeLanguages(string initialCode)
@@ -145,13 +165,31 @@ public partial class MainViewModel : ObservableObject
                 "FD93956E6143F0942FC4FD6760E65BE4FC4C8F19"),
 
             new EndpointPreset(
-                "Citrix Portal",
-                "citrix.com",
+                "Citrix Workspace Agent Hub (EU)",
+                "agenthub-eu.citrixworkspacesapi.net",
                 443,
-                "Citrix Official Web Portal",
-                new[] { "DigiCert", "Sectigo", "GoDaddy" },
-                new DateTime(2027, 2, 11, 0, 59, 59, DateTimeKind.Utc),
-                "E25DB037FE08E8D08A280E06276536C5AA0481AE"),
+                "Citrix Workspace Agent Control Plane (Europe)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "2EC3B62283D0BD480A2D5777E33CED1D88215778"),
+
+            new EndpointPreset(
+                "Citrix Workspace Agent Hub (US)",
+                "agenthub-us.citrixworkspacesapi.net",
+                443,
+                "Citrix Workspace Agent Control Plane (United States)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "0569B9577FE6C1C952B3B1DB48C0D9A75EB4384F"),
+
+            new EndpointPreset(
+                "Citrix Workspace Agent Hub (AP-S)",
+                "agenthub-ap-s.citrixworkspacesapi.net",
+                443,
+                "Citrix Workspace Agent Control Plane (Asia-Pacific)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "86892F1A8CEB820BF5D407C7C5BB91EAF30AAC1C"),
 
             new EndpointPreset(
                 "Microsoft Entra ID / Azure AD",
@@ -160,7 +198,7 @@ public partial class MainViewModel : ObservableObject
                 "Microsoft Authentication Service (High SSO SSL Inspection Risk)",
                 new[] { "DigiCert", "Microsoft", "Sectigo", "GlobalSign" },
                 new DateTime(2026, 12, 12, 0, 59, 59, DateTimeKind.Utc),
-                "EB7711B2EA1A8D920C5060328A08A24A93C288DE"),
+                "EB7711B2EA1A8D920C5060328A08A24A93C288DE;D36EDAAC39C9581AE2F36F16D9E2C03DB5C7DADB"),
 
             new EndpointPreset(
                 "Azure Virtual Desktop Gateway",
@@ -169,7 +207,7 @@ public partial class MainViewModel : ObservableObject
                 "Microsoft Remote Desktop / AVD Gateway Service",
                 new[] { "Microsoft", "DigiCert", "Sectigo" },
                 new DateTime(2027, 1, 19, 17, 31, 41, DateTimeKind.Utc),
-                "2F5DA3E7FA20B155C0B5E234A3152A6E4D99B6B3;B80140DC2DD174B577C81D9E30B718090CD166FC"),
+                "2F5DA3E7FA20B155C0B5E234A3152A6E4D99B6B3;B80140DC2DD174B577C81D9E30B718090CD166FC;0DDB05F2F8EC6D2B8DB60C6B8A5AE196D1C40B40"),
 
             new EndpointPreset(
                 "Microsoft Teams",
@@ -421,7 +459,8 @@ public partial class MainViewModel : ObservableObject
                 LanguageCode = SelectedLanguage?.Code ?? "auto",
                 SelectedProxyMode = SelectedProxyMode,
                 CustomProxyHost = CustomProxyHost,
-                CustomProxyPort = CustomProxyPort
+                CustomProxyPort = CustomProxyPort,
+                DisclaimerAckDate = _disclaimerAckDate
             };
             await _settingsService.SaveSettingsAsync(settings);
         }
