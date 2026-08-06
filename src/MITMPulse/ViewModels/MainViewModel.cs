@@ -145,13 +145,31 @@ public partial class MainViewModel : ObservableObject
                 "FD93956E6143F0942FC4FD6760E65BE4FC4C8F19"),
 
             new EndpointPreset(
-                "Citrix Portal",
-                "citrix.com",
+                "Citrix Workspace Agent Hub (EU)",
+                "agenthub-eu.citrixworkspacesapi.net",
                 443,
-                "Citrix Official Web Portal",
-                new[] { "DigiCert", "Sectigo", "GoDaddy" },
-                new DateTime(2027, 2, 11, 0, 59, 59, DateTimeKind.Utc),
-                "E25DB037FE08E8D08A280E06276536C5AA0481AE"),
+                "Citrix Workspace Agent Control Plane (Europe)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "2EC3B62283D0BD480A2D5777E33CED1D88215778"),
+
+            new EndpointPreset(
+                "Citrix Workspace Agent Hub (US)",
+                "agenthub-us.citrixworkspacesapi.net",
+                443,
+                "Citrix Workspace Agent Control Plane (United States)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "0569B9577FE6C1C952B3B1DB48C0D9A75EB4384F"),
+
+            new EndpointPreset(
+                "Citrix Workspace Agent Hub (AP-S)",
+                "agenthub-ap-s.citrixworkspacesapi.net",
+                443,
+                "Citrix Workspace Agent Control Plane (Asia-Pacific)",
+                new[] { "DigiCert", "Sectigo" },
+                new DateTime(2027, 1, 11, 0, 59, 59, DateTimeKind.Utc),
+                "86892F1A8CEB820BF5D407C7C5BB91EAF30AAC1C"),
 
             new EndpointPreset(
                 "Microsoft Entra ID / Azure AD",
