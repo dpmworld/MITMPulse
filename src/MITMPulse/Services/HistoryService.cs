@@ -116,5 +116,17 @@ public class HistoryService : IHistoryService
         await File.WriteAllTextAsync(filePath, sb.ToString(), Encoding.UTF8, cancellationToken);
     }
 
-    private static string EscapeCsv(string input) => input.Replace("\"", "\"\"");
+    private static string EscapeCsv(string input)
+    {
+        string escaped = input.Replace("\"", "\"\"");
+
+        // Prevent CSV/formula injection: neutralize values that Excel/LibreOffice
+        // may interpret as formulas (e.g. a malicious certificate Issuer field).
+        if (escaped.Length > 0 && (escaped[0] == '=' || escaped[0] == '+' || escaped[0] == '-' || escaped[0] == '@' || escaped[0] == '\t' || escaped[0] == '\r'))
+        {
+            escaped = "'" + escaped;
+        }
+
+        return escaped;
+    }
 }
