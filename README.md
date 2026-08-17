@@ -22,6 +22,9 @@ Website: [www.dpmworld.net](https://www.dpmworld.net)
   - 👁️ **Red Eye (`Eye24`)**: Confirmed MITM SSL Inspection active (enterprise proxy re-signing detected).
   - ⚠️ **Orange Warning (`Warning24`)**: Certificate expired or domain error on a public endpoint (direct connection).
   - 🟢 **Green Checkmark (`CheckmarkCircle24`)**: Direct secure connection verified against trusted public Root CAs.
+- **DTLS over UDP Protocol Inspection**:
+  - Probes UDP target ports in parallel using standard RFC 6347 DTLS 1.2 `ClientHello` datagrams (with SNI).
+  - Displays a discrete green **DTLS** badge when DTLS transport (e.g., Citrix NetScaler Enlightened Data Transport - EDT) is verified.
 - **GoDaddy R1/G2 Hierarchy & Cross-Certificate Diagnostics**:
   - Native support for GoDaddy & Starfield Root CAs (`GoDaddy TLS Root CA - R1`, `R1v1` intermediate).
   - Emits specific diagnostic warnings if a NetScaler or server is missing the `R1->G2` cross-certificate, preventing client trust false positives (referencing [Go Daddy TLS Certificate not trusted](https://www.dpmworld.net/2026/07/31/go-daddy-tls-certificate-not-trusted/)).
@@ -30,6 +33,7 @@ Website: [www.dpmworld.net](https://www.dpmworld.net)
 - **TLS Version & Cipher Suite Metrics**: Displays negotiated protocol versions (TLS 1.2, TLS 1.3) and negotiated Cipher Suites.
 - **Certificate Pinning**: Optional validation against expected SHA-1 certificate thumbprints with preset fallback.
 - **Proxy Modes & PAC/WinHTTP Tunneling**: Supports **Direct** socket connections, **System Proxy** (WinINet / System with automatic **PAC script** execution & HTTP `CONNECT` tunneling), **WinHTTP Proxy** (`netsh winhttp` P/Invoke native system proxy reader), or **Custom** explicit HTTP/SOCKS proxies with mandatory configuration validation and authentication.
+- **Inspection History & Hardened CSV/JSON Export**: Stores persistent inspection records with built-in sanitization against CSV Formula Injection vulnerabilities.
 
 ### 🏢 Predefined Target Presets
 Pre-populated with high-priority enterprise cloud endpoints and live certificate baselines:
