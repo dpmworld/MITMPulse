@@ -75,4 +75,26 @@ public class MainViewModelTests
         Assert.Equal("DIRECT CONNECTION (No SSL Inspection Detected)", _sut.StatusMessage);
         _mockHistoryService.Verify(h => h.SaveEntryAsync(expectedResult, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public void Constructor_IsDtlsActive_IsFalseInitially()
+    {
+        // Assert
+        Assert.Null(_sut.InspectionResult);
+        Assert.False(_sut.IsDtlsActive);
+    }
+
+    [Fact]
+    public void IsDtlsActive_WhenDtlsSupportedAndSuccess_ReturnsTrue()
+    {
+        // Arrange
+        _sut.InspectionResult = new SslInspectionResult
+        {
+            IsSuccess = true,
+            IsDtlsSupported = true
+        };
+
+        // Assert
+        Assert.True(_sut.IsDtlsActive);
+    }
 }

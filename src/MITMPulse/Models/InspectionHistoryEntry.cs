@@ -18,4 +18,5 @@ public class InspectionHistoryEntry
     public string StatusSummary { get; set; } = string.Empty;
     public string ServerIssuer { get; set; } = string.Empty;
     public string ServerThumbprint { get; set; } = string.Empty;
+    public bool IsDtlsSupported { get; set; }
 }

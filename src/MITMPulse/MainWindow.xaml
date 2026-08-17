@@ -9,6 +9,10 @@
                   WindowStartupLocation="CenterScreen"
                   Icon="pack://application:,,,/Assets/icon.ico">
 
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </ui:FluentWindow.Resources>
+
     <Grid Margin="12,4,12,12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,7 +23,8 @@
         </Grid.RowDefinitions>
 
         <!-- TitleBar Fluent with Icon and Dynamic Title + Version -->
-        <ui:TitleBar Grid.Row="0"
+        <ui:TitleBar x:Name="AppTitleBar"
+                     Grid.Row="0"
                      Title="{Binding AppTitleWithVersion}"
                      Margin="-12,-4,-12,8">
             <ui:TitleBar.Icon>
@@ -91,28 +96,52 @@
 
         <!-- Status Banner -->
         <ui:Card Grid.Row="2" Margin="0,0,0,16" Padding="12,10">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20" Margin="0,0,12,0"
-                                 Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Red Eye Icon when SSL Inspection is Detected -->
-                <ui:SymbolIcon Symbol="Eye24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
-                               Visibility="{Binding IsSslInspectionDetected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20" Margin="0,0,12,0"
+                                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                <!-- Orange Warning Icon when Certificate Expired -->
-                <ui:SymbolIcon Symbol="Warning24" FontSize="20" Foreground="#D83B01" Margin="0,0,10,0"
-                               Visibility="{Binding IsCertificateExpired, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <!-- Red Eye Icon when SSL Inspection is Detected -->
+                    <ui:SymbolIcon Symbol="Eye24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
+                                   Visibility="{Binding IsSslInspectionDetected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                <!-- Green Checkmark Icon when Direct Connection -->
-                <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="#107C41" Margin="0,0,10,0"
-                               Visibility="{Binding IsDirectConnection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <!-- Orange Warning Icon when Certificate Expired -->
+                    <ui:SymbolIcon Symbol="Warning24" FontSize="20" Foreground="#D83B01" Margin="0,0,10,0"
+                                   Visibility="{Binding IsCertificateExpired, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                <!-- Red Dismiss Icon when Connection Error -->
-                <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
-                               Visibility="{Binding IsConnectionError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <!-- Green Checkmark Icon when Direct Connection -->
+                    <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="#107C41" Margin="0,0,10,0"
+                                   Visibility="{Binding IsDirectConnection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                <TextBlock Text="{Binding StatusMessage}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </StackPanel>
+                    <!-- Red Dismiss Icon when Connection Error -->
+                    <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="#D13438" Margin="0,0,10,0"
+                                   Visibility="{Binding IsConnectionError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Discrete and Elegant Green DTLS Badge -->
+                <Border Grid.Column="1"
+                        Visibility="{Binding IsDtlsActive, Converter={StaticResource BoolToVis}}"
+                        Margin="12,0,0,0"
+                        Padding="8,3"
+                        Background="#120E8A16"
+                        BorderBrush="#0E8A16"
+                        BorderThickness="1.5"
+                        CornerRadius="4"
+                        VerticalAlignment="Center"
+                        ToolTip="DTLS (Datagram Transport Layer Security over UDP) is active and verified.">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="ShieldCheckmark20" Foreground="#0E8A16" FontSize="14" Margin="0,0,5,0"/>
+                        <TextBlock Text="DTLS" FontWeight="Bold" FontSize="11" Foreground="#0E8A16" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </ui:Card>
 
         <!-- Main Content Tabs -->

@@ -68,6 +68,7 @@ public partial class MainViewModel : ObservableObject
     public bool IsCertificateExpired => !IsLoading && InspectionResult != null && InspectionResult.IsSuccess && !InspectionResult.IsSslInspectionDetected && InspectionResult.ServerCertificate != null && (DateTime.UtcNow > InspectionResult.ServerCertificate.ValidTo || DateTime.UtcNow < InspectionResult.ServerCertificate.ValidFrom);
     public bool IsDirectConnection => !IsLoading && InspectionResult != null && InspectionResult.IsSuccess && !InspectionResult.IsSslInspectionDetected && !IsCertificateExpired;
     public bool IsConnectionError => !IsLoading && InspectionResult != null && !InspectionResult.IsSuccess;
+    public bool IsDtlsActive => !IsLoading && InspectionResult != null && InspectionResult.IsSuccess && InspectionResult.IsDtlsSupported;
 
     partial void OnInspectionResultChanged(SslInspectionResult? value)
     {
@@ -75,6 +76,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsCertificateExpired));
         OnPropertyChanged(nameof(IsDirectConnection));
         OnPropertyChanged(nameof(IsConnectionError));
+        OnPropertyChanged(nameof(IsDtlsActive));
     }
 
     partial void OnIsLoadingChanged(bool value)
@@ -83,6 +85,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsCertificateExpired));
         OnPropertyChanged(nameof(IsDirectConnection));
         OnPropertyChanged(nameof(IsConnectionError));
+        OnPropertyChanged(nameof(IsDtlsActive));
     }
 
     public MainViewModel(

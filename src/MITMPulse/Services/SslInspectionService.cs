@@ -41,6 +41,9 @@ public class SslInspectionService : ISslInspectionService
             return result;
         }
 
+        // Launch DTLS over UDP test in parallel (with short timeout)
+        var dtlsTask = TestDtlsOverUdpAsync(targetHost, targetPort, cancellationToken);
+
         try
         {
             using var tcpClient = new TcpClient();
@@ -168,6 +171,20 @@ public class SslInspectionService : ISslInspectionService
         {
             result.IsSuccess = false;
             result.ErrorMessage = ex.Message;
+        }
+
+        // Await DTLS UDP result (if not already completed)
+        try
+        {
+            result.IsDtlsSupported = await dtlsTask.ConfigureAwait(false);
+            if (result.IsDtlsSupported)
+            {
+                result.DtlsDetails = "DTLS over UDP (Datagram TLS) Active & Verified";
+            }
+        }
+        catch
+        {
+            result.IsDtlsSupported = false;
         }
 
         return result;
@@ -494,5 +511,172 @@ public class SslInspectionService : ISslInspectionService
         // Direct TCP socket connection if no proxy or bypassed
         await tcpClient.ConnectAsync(targetHost, targetPort, cancellationToken).ConfigureAwait(false);
         return tcpClient.GetStream();
+    }
+
+    /// <summary>
+    /// Tests if the remote endpoint speaks DTLS (Datagram Transport Layer Security) over UDP.
+    /// Sends a standard RFC 6347 DTLS 1.2 ClientHello datagram and checks for a valid DTLS response (e.g. HelloVerifyRequest or ServerHello).
+    /// </summary>
+    public static async Task<bool> TestDtlsOverUdpAsync(string host, int port, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            byte[] clientHello = BuildDtlsClientHello(host);
+            using var udpClient = new UdpClient();
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(TimeSpan.FromMilliseconds(2500));
+
+            // Resolve host IP
+            var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false);
+            if (addresses.Length == 0) return false;
+
+            var targetIp = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork) ?? addresses[0];
+            var endpoint = new IPEndPoint(targetIp, port);
+
+            await udpClient.SendAsync(clientHello, clientHello.Length, endpoint).ConfigureAwait(false);
+
+            var receiveTask = udpClient.ReceiveAsync(timeoutCts.Token).AsTask();
+            var completedTask = await Task.WhenAny(receiveTask, Task.Delay(2500, timeoutCts.Token)).ConfigureAwait(false);
+
+            if (completedTask == receiveTask)
+            {
+                var response = await receiveTask.ConfigureAwait(false);
+                byte[] data = response.Buffer;
+
+                if (data.Length >= 13)
+                {
+                    byte contentType = data[0];
+                    byte versionMajor = data[1];
+
+                    // DTLS record content types: 22 (Handshake), 21 (Alert)
+                    // DTLS protocol version major is 0xFE (DTLS 1.0 = 0xFEFF, DTLS 1.2 = 0xFEFD, DTLS 1.3 = 0xFEFC)
+                    if ((contentType == 22 || contentType == 21) && versionMajor == 0xFE)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // UDP/DTLS check is non-fatal: return false on timeout/error
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Builds a well-formed RFC 6347 DTLS 1.2 ClientHello record datagram including SNI extension.
+    /// </summary>
+    public static byte[] BuildDtlsClientHello(string host)
+    {
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms);
+
+        using var bodyMs = new MemoryStream();
+        using var bodyBw = new BinaryWriter(bodyMs);
+
+        // Client Version (DTLS 1.2 = 0xFEFD)
+        bodyBw.Write(new byte[] { 0xfe, 0xfd });
+
+        // Random 32 bytes
+        byte[] randomBytes = new byte[32];
+        RandomNumberGenerator.Fill(randomBytes);
+        bodyBw.Write(randomBytes);
+
+        // Session ID Length = 0
+        bodyBw.Write((byte)0x00);
+
+        // Cookie Length = 0
+        bodyBw.Write((byte)0x00);
+
+        // Cipher Suites (20 bytes = 10 suites)
+        byte[] cipherSuites = new byte[]
+        {
+            0x00, 0x14, // Length: 20 bytes
+            0xc0, 0x2f, // TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+            0xc0, 0x30, // TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+            0xc0, 0x13, // TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+            0xc0, 0x14, // TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+            0x00, 0x9c, // TLS_RSA_WITH_AES_128_GCM_SHA256
+            0x00, 0x9d, // TLS_RSA_WITH_AES_256_GCM_SHA384
+            0x00, 0x2f, // TLS_RSA_WITH_AES_128_CBC_SHA
+            0x00, 0x35, // TLS_RSA_WITH_AES_256_CBC_SHA
+            0x00, 0x0a, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
+            0x00, 0xff  // TLS_EMPTY_RENEGOTIATION_INFO_SCSV
+        };
+        bodyBw.Write(cipherSuites);
+
+        // Compression Methods (1 byte length + 0x00 null)
+        bodyBw.Write(new byte[] { 0x01, 0x00 });
+
+        // Extensions (SNI)
+        if (!string.IsNullOrWhiteSpace(host) && !IPAddress.TryParse(host, out _))
+        {
+            byte[] hostBytes = Encoding.UTF8.GetBytes(host);
+            using var extMs = new MemoryStream();
+            using var extBw = new BinaryWriter(extMs);
+
+            // Extension: Server Name Indication (0x0000)
+            extBw.Write(new byte[] { 0x00, 0x00 });
+            int sniListLength = hostBytes.Length + 3;
+            int sniExtLength = sniListLength + 2;
+
+            extBw.Write((byte)(sniExtLength >> 8));
+            extBw.Write((byte)(sniExtLength & 0xFF));
+
+            extBw.Write((byte)(sniListLength >> 8));
+            extBw.Write((byte)(sniListLength & 0xFF));
+
+            extBw.Write((byte)0x00); // HostName type (0)
+            extBw.Write((byte)(hostBytes.Length >> 8));
+            extBw.Write((byte)(hostBytes.Length & 0xFF));
+            extBw.Write(hostBytes);
+
+            byte[] extData = extMs.ToArray();
+            bodyBw.Write((byte)(extData.Length >> 8));
+            bodyBw.Write((byte)(extData.Length & 0xFF));
+            bodyBw.Write(extData);
+        }
+
+        byte[] handshakeBody = bodyMs.ToArray();
+
+        // Handshake Header (12 bytes)
+        using var hsMs = new MemoryStream();
+        using var hsBw = new BinaryWriter(hsMs);
+        hsBw.Write((byte)0x01); // HandshakeType = ClientHello (1)
+
+        // 3 bytes length
+        hsBw.Write((byte)(handshakeBody.Length >> 16));
+        hsBw.Write((byte)((handshakeBody.Length >> 8) & 0xFF));
+        hsBw.Write((byte)(handshakeBody.Length & 0xFF));
+
+        // 2 bytes message_seq = 0
+        hsBw.Write(new byte[] { 0x00, 0x00 });
+
+        // 3 bytes fragment_offset = 0
+        hsBw.Write(new byte[] { 0x00, 0x00, 0x00 });
+
+        // 3 bytes fragment_length
+        hsBw.Write((byte)(handshakeBody.Length >> 16));
+        hsBw.Write((byte)((handshakeBody.Length >> 8) & 0xFF));
+        hsBw.Write((byte)(handshakeBody.Length & 0xFF));
+
+        // Body
+        hsBw.Write(handshakeBody);
+
+        byte[] handshakeRecord = hsMs.ToArray();
+
+        // DTLS Record Header (13 bytes)
+        bw.Write((byte)0x16); // ContentType: Handshake (22)
+        bw.Write(new byte[] { 0xfe, 0xfd }); // ProtocolVersion: DTLS 1.2
+        bw.Write(new byte[] { 0x00, 0x00 }); // Epoch: 0
+        bw.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // SequenceNumber: 0
+        bw.Write((byte)(handshakeRecord.Length >> 8));
+        bw.Write((byte)(handshakeRecord.Length & 0xFF));
+        bw.Write(handshakeRecord);
+
+        return ms.ToArray();
     }
 }

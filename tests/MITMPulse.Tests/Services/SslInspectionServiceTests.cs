@@ -42,4 +42,34 @@ public class SslInspectionServiceTests
         Assert.False(result.IsSuccess);
         Assert.NotEmpty(result.ErrorMessage);
     }
+
+    [Fact]
+    public void BuildDtlsClientHello_ValidHost_ReturnsWellFormedDtlsRecord()
+    {
+        // Arrange
+        string host = "citrix.gateway.example.com";
+
+        // Act
+        byte[] datagram = SslInspectionService.BuildDtlsClientHello(host);
+
+        // Assert
+        Assert.NotNull(datagram);
+        Assert.True(datagram.Length >= 13);
+        Assert.Equal(0x16, datagram[0]); // ContentType = Handshake (22)
+        Assert.Equal(0xFE, datagram[1]); // Major Version = DTLS (0xFE)
+        Assert.Equal(0xFD, datagram[2]); // Minor Version = DTLS 1.2 (0xFD)
+    }
+
+    [Fact]
+    public async Task TestDtlsOverUdpAsync_InvalidHost_ReturnsFalse()
+    {
+        // Arrange
+        string invalidHost = "invalid.nonexistent.domain.xyz12345";
+
+        // Act
+        bool isSupported = await SslInspectionService.TestDtlsOverUdpAsync(invalidHost, 443);
+
+        // Assert
+        Assert.False(isSupported);
+    }
 }
