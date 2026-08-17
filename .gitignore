@@ -36,3 +36,6 @@ $RECYCLE.BIN/
 
 # Project private instructions
 MITMPulse_project.md
+
+# Claude Code local settings
+.claude/

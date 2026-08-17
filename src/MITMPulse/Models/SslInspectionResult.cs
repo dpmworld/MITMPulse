@@ -24,4 +24,6 @@ public class SslInspectionResult
     public string PacScriptUrl { get; set; } = string.Empty;
     public string PacResolvedProxy { get; set; } = string.Empty;
     public string TunnelStatus { get; set; } = string.Empty;
+    public bool IsDtlsSupported { get; set; }
+    public string DtlsDetails { get; set; } = string.Empty;
 }

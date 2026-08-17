@@ -71,7 +71,8 @@ public class HistoryService : IHistoryService
             IsSuccess = result.IsSuccess,
             StatusSummary = statusSummary,
             ServerIssuer = result.ServerCertificate?.Issuer ?? string.Empty,
-            ServerThumbprint = result.ServerCertificate?.Thumbprint ?? string.Empty
+            ServerThumbprint = result.ServerCertificate?.Thumbprint ?? string.Empty,
+            IsDtlsSupported = result.IsDtlsSupported
         };
 
         history.Insert(0, entry); // Add newest at top
@@ -106,15 +107,27 @@ public class HistoryService : IHistoryService
     {
         var history = await GetHistoryAsync(cancellationToken);
         var sb = new StringBuilder();
-        sb.AppendLine("Timestamp,TargetHost,TargetPort,IsSuccess,IsSslInspectionDetected,TlsVersion,CipherSuite,ServerIssuer,ServerThumbprint,StatusSummary");
+        sb.AppendLine("Timestamp,TargetHost,TargetPort,IsSuccess,IsSslInspectionDetected,IsDtlsSupported,TlsVersion,CipherSuite,ServerIssuer,ServerThumbprint,StatusSummary");
 
         foreach (var item in history)
         {
-            sb.AppendLine($"\"{item.Timestamp:yyyy-MM-dd HH:mm:ss}\",\"{EscapeCsv(item.TargetHost)}\",{item.TargetPort},{item.IsSuccess},{item.IsSslInspectionDetected},\"{EscapeCsv(item.TlsVersion)}\",\"{EscapeCsv(item.CipherSuite)}\",\"{EscapeCsv(item.ServerIssuer)}\",\"{EscapeCsv(item.ServerThumbprint)}\",\"{EscapeCsv(item.StatusSummary)}\"");
+            sb.AppendLine($"\"{item.Timestamp:yyyy-MM-dd HH:mm:ss}\",\"{EscapeCsv(item.TargetHost)}\",{item.TargetPort},{item.IsSuccess},{item.IsSslInspectionDetected},{item.IsDtlsSupported},\"{EscapeCsv(item.TlsVersion)}\",\"{EscapeCsv(item.CipherSuite)}\",\"{EscapeCsv(item.ServerIssuer)}\",\"{EscapeCsv(item.ServerThumbprint)}\",\"{EscapeCsv(item.StatusSummary)}\"");
         }
 
         await File.WriteAllTextAsync(filePath, sb.ToString(), Encoding.UTF8, cancellationToken);
     }
 
-    private static string EscapeCsv(string input) => input.Replace("\"", "\"\"");
+    private static string EscapeCsv(string input)
+    {
+        string escaped = input.Replace("\"", "\"\"");
+
+        // Prevent CSV/formula injection: neutralize values that Excel/LibreOffice
+        // may interpret as formulas (e.g. a malicious certificate Issuer field).
+        if (escaped.Length > 0 && (escaped[0] == '=' || escaped[0] == '+' || escaped[0] == '-' || escaped[0] == '@' || escaped[0] == '\t' || escaped[0] == '\r'))
+        {
+            escaped = "'" + escaped;
+        }
+
+        return escaped;
+    }
 }
