@@ -9,22 +9,20 @@ public partial class MainWindow : Elem.FluentWindow
         InitializeComponent();
         DataContext = App.ViewModel;
         Loaded += MainWindow_Loaded;
-        MouseDown += MainWindow_MouseDown;
         AppTitleBar.MouseLeftButtonDown += (s, e) =>
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragMove();
+                try
+                {
+                    DragMove();
+                }
+                catch (System.InvalidOperationException)
+                {
+                    // Ignore transient mouse release/double-click race conditions
+                }
             }
         };
-    }
-
-    private void MainWindow_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == System.Windows.Input.MouseButton.Left && e.GetPosition(this).Y < 40)
-        {
-            DragMove();
-        }
     }
 
     private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
